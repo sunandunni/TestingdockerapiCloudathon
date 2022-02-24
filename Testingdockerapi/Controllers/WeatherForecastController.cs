@@ -12,6 +12,10 @@ using Newtonsoft.Json;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text;
 using Entities;
+using Azure.Storage.Blobs;
+using System.IO;
+using System.Threading.Tasks;
+using TestingDockerApi;
 
 namespace Testingdockerapi.Controllers
 {
@@ -130,6 +134,15 @@ namespace Testingdockerapi.Controllers
             item.Id = Guid.NewGuid().ToString();
             await _cosmosDbService.AddAsync(item);
             return CreatedAtAction(nameof(Get), new { id = item.Id }, item);
+        }
+
+        [HttpPost]
+        [Route("UploadBlob")]
+        public async Task<string> UploadBlob()
+        {
+            await AzureBlobStorage.UploadBlob();
+            return "ok";
+           
         }
         // PUT api/items/5
         [HttpPut("{id}")]
