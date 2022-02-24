@@ -12,6 +12,10 @@ using Newtonsoft.Json;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text;
 using Entities;
+using Azure.Storage.Blobs;
+using System.IO;
+using System.Threading.Tasks;
+using TestingDockerApi;
 using Testingdockerapi.Entities;
 using Testingdockerapi.Business;
 
@@ -135,6 +139,15 @@ namespace Testingdockerapi.Controllers
             await _cosmosDbService.AddAsync(item);
             return CreatedAtAction(nameof(Get), new { id = item.Id }, item);
         }
+
+        [HttpPost]
+        [Route("UploadBlob")]
+        public async Task<string> UploadBlob()
+        {
+            await AzureBlobStorage.UploadBlob();
+            return "ok";
+           
+        }
         // PUT api/items/5
         [HttpPut("{id}")]
         public async Task<IActionResult> Edit([FromBody] Item item)
@@ -148,33 +161,6 @@ namespace Testingdockerapi.Controllers
         {
             await _cosmosDbService.DeleteAsync(id);
             return NoContent();
-        }
-
-        [HttpGet]
-        [Route("GetClient")]
-        public Client GetClient(string name) {
-            return manager.GetClient(name);
-        }
-
-        [HttpGet]
-        [Route("GetGoal")]
-        public Goal GetGoal(int clientId)
-        {
-            return manager.GetGoal(clientId);
-        }
-
-        [HttpGet]
-        [Route("GetCashflows")]
-        public List<Cashflow> GetCashflows(int clientId)
-        {
-            return manager.getCashflows(clientId);
-        }
-
-        [HttpGet]
-        [Route("GetAccounts")]
-        public List<Account> GetAccounts(int clientId)
-        {
-            return manager.getAccounts(clientId);
         }
     }
 }
