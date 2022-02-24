@@ -18,6 +18,8 @@ using System.Threading.Tasks;
 using TestingDockerApi;
 using Testingdockerapi.Entities;
 using Testingdockerapi.Business;
+using System.Net;
+
 
 namespace Testingdockerapi.Controllers
 {
@@ -76,6 +78,16 @@ namespace Testingdockerapi.Controllers
             //List<string> myTodos = new List<string>();
             //bool IsCached = false;
             string employeeDetails = string.Empty;
+
+
+
+            string connectionString = "my_connection_string";
+            ConfigurationOptions options = ConfigurationOptions.Parse("sunandredistest.redis.cache.windows.net:6380,password=MP6Y2oZDBYdxoJSV6B5msJTJGm4MwMS4SAzCaKeiHxU=,ssl=True,abortConnect=False");
+            ConnectionMultiplexer connection = ConnectionMultiplexer.Connect(options);
+            IDatabase db = connection.GetDatabase();
+            EndPoint endPoint = connection.GetEndPoints().First();
+            RedisKey[] keys = connection.GetServer(endPoint).Keys(pattern: "*").ToArray();
+
             employeeDetails = await _cache.GetStringAsync(key);
             if (!string.IsNullOrEmpty(employeeDetails))
             {

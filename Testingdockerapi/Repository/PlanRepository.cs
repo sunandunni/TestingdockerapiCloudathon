@@ -11,6 +11,8 @@ namespace Testingdockerapi.Repository
 {
     public class PlanRepository
     {
+
+        // ALL Ids should be in string
         public async Task<List<Client>> GetClient(string name, IDistributedCache _cache) {
 
             //TO DO   -- get list of keys starting with CL..get values from that key and return clients containing the name
