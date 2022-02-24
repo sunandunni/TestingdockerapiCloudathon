@@ -144,7 +144,7 @@ namespace Testingdockerapi.Controllers
         [Route("UploadBlob")]
         public async Task<string> UploadBlob()
         {
-            await AzureBlobStorage.UploadBlob();
+            await AzureBlobStorage.GetBlob();
             return "ok";
            
         }
@@ -165,23 +165,23 @@ namespace Testingdockerapi.Controllers
 
         [HttpGet]
         [Route("GetClient")]
-        public Client GetClient(string name)
+        public List<Client> GetClient(string name)
         {
-            return manager.GetClient(name);
+            return manager.GetClient(name,_cache);
         }
 
         [HttpGet]
         [Route("GetGoal")]
         public Goal GetGoal(int clientId)
         {
-            return manager.GetGoal(clientId);
+            return manager.GetGoal(clientId,_cache);
         }
 
         [HttpGet]
         [Route("GetCashflows")]
         public List<Cashflow> getCashflows(int clientId)
         {
-            return manager.GetCashflows(clientId);
+            return manager.GetCashflows(clientId,_cache);
 
         }
 

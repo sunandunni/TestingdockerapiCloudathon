@@ -6,8 +6,9 @@ namespace TestingDockerApi
 { 
     public static class AzureBlobStorage
     {
-        public static async Task UploadBlob()
+        public static async Task<string> GetBlob(string fileName = null)
         {
+            string line = string.Empty;
             var connectionString = "DefaultEndpointsProtocol=https;AccountName=sunandstorageaccount;AccountKey=zcXp1Ug47/wsugiHIpKvffSsdtoGdnPt3NPuWFc9ZefsXiOdD0QZSqAHiJ+S5LXK/bsO+/rJErNC+AStWZhwWw==;EndpointSuffix=core.windows.net";
             string containerName = "sunandblobstorage";
             var serviceClient = new BlobServiceClient(connectionString);
@@ -25,7 +26,7 @@ namespace TestingDockerApi
                 {
                     while (!streamReader.EndOfStream)
                     {
-                        var line = await streamReader.ReadLineAsync();
+                        line = await streamReader.ReadLineAsync();
                         Console.WriteLine(line);
                     }
                 }
@@ -35,6 +36,7 @@ namespace TestingDockerApi
             //using FileStream uploadFileStream = File.OpenRead(localFile);
             //await blobClient.UploadAsync(uploadFileStream, true);
             //uploadFileStream.Close();
+            return line;
         }
     }
 }
