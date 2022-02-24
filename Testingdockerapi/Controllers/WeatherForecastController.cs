@@ -11,6 +11,7 @@ using StackExchange.Redis;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text;
+using Entities;
 
 namespace Testingdockerapi.Controllers
 {
