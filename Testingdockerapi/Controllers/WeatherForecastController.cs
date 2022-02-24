@@ -12,6 +12,8 @@ using Newtonsoft.Json;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text;
 using Entities;
+using Testingdockerapi.Entities;
+using Testingdockerapi.Business;
 
 namespace Testingdockerapi.Controllers
 {
@@ -33,6 +35,8 @@ namespace Testingdockerapi.Controllers
         private readonly ICosmosDbService _cosmosDbService;
 
         private readonly ILogger<WeatherForecastController> _logger;
+
+        private PlanManager manager = new PlanManager();
 
         public WeatherForecastController(ILogger<WeatherForecastController> logger, IDistributedCache cache, ICosmosDbService cosmosDbService)
         {
@@ -144,6 +148,33 @@ namespace Testingdockerapi.Controllers
         {
             await _cosmosDbService.DeleteAsync(id);
             return NoContent();
+        }
+
+        [HttpGet]
+        [Route("GetClient")]
+        public Client GetClient(string name) {
+            return manager.GetClient(name);
+        }
+
+        [HttpGet]
+        [Route("GetGoal")]
+        public Goal GetGoal(int clientId)
+        {
+            return manager.GetGoal(clientId);
+        }
+
+        [HttpGet]
+        [Route("GetCashflows")]
+        public List<Cashflow> GetCashflows(int clientId)
+        {
+            return manager.getCashflows(clientId);
+        }
+
+        [HttpGet]
+        [Route("GetAccounts")]
+        public List<Account> GetAccounts(int clientId)
+        {
+            return manager.getAccounts(clientId);
         }
     }
 }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Entities
+namespace Testingdockerapi.Entities
 {
     public enum CashflowType { Income, Expense}
     public class Cashflow
