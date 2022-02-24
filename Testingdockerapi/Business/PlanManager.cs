@@ -19,16 +19,16 @@ namespace Testingdockerapi.Business
             return repository.GetGoal(clientId);
         }
 
-        public List<Cashflow> getCashflows(int clientId) {
+        public List<Cashflow> GetCashflows(int clientId) {
             return repository.GetCashflows(clientId);
         
         }
 
-        public List<Account> getAccounts(int clientId) {
+        public List<Account> GetAccounts(int clientId) {
             return repository.GetAccounts(clientId);
         }
 
-        public Plan getPlan(int clientId) {
+        public Plan GetPlan(int clientId) {
             return repository.GetPlan(clientId);
         }
       

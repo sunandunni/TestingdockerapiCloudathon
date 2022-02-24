@@ -162,5 +162,35 @@ namespace Testingdockerapi.Controllers
             await _cosmosDbService.DeleteAsync(id);
             return NoContent();
         }
+
+        [HttpGet]
+        [Route("GetClient")]
+        public Client GetClient(string name)
+        {
+            return manager.GetClient(name);
+        }
+
+        [HttpGet]
+        [Route("GetGoal")]
+        public Goal GetGoal(int clientId)
+        {
+            return manager.GetGoal(clientId);
+        }
+
+        [HttpGet]
+        [Route("GetCashflows")]
+        public List<Cashflow> getCashflows(int clientId)
+        {
+            return manager.GetCashflows(clientId);
+
+        }
+
+        [HttpGet]
+        [Route("GetAccounts")]
+        public List<Account> getAccounts(int clientId)
+        {
+            return manager.GetAccounts(clientId);
+        }
+
     }
 }
