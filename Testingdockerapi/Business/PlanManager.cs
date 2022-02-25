@@ -76,6 +76,9 @@ namespace Testingdockerapi.Business
             //plan.goal = GetGoal(clientId, _cache).Result;
             plan.cashflows = GetCashflows(clientId, _cache, connection);
             plan.accounts = GetAccounts(clientId, blobContainerClient);
+            plan.allocations = new Allocations();
+            plan.allocations.cash = 50;
+            plan.allocations.equities = 50;
             return plan;
         }
 
