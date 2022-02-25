@@ -30,9 +30,9 @@ namespace Testingdockerapi
             {
                 options.SwaggerDoc("v2", new Microsoft.OpenApi.Models.OpenApiInfo
                 {
-                    Title = "Place Info Service API",
-                    Version = "v2",
-                    Description = "Sample service for Learner",
+                    Title = "Plan API",
+                    Version = "v1",
+                    Description = "Sample service for FP",
                 });
             });
             services.AddStackExchangeRedisCache(setupAction =>
@@ -62,7 +62,7 @@ namespace Testingdockerapi
             });
 
             app.UseSwagger();
-            app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v2/swagger.json", "Weather service"));
+            app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v2/swagger.json", "Plan Service"));
         }
 
         private static async Task<CosmosDbService> InitializeCosmosClientInstanceAsync(IConfigurationSection configurationSection)

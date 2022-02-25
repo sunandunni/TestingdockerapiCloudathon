@@ -25,7 +25,7 @@ namespace Testingdockerapi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class WeatherForecastController : ControllerBase
+    public class PlanController : ControllerBase
     {
         private static readonly string[] Summaries = new[]
         {
@@ -40,7 +40,7 @@ namespace Testingdockerapi.Controllers
         private readonly IDistributedCache _cache;
         private readonly ICosmosDbService _cosmosDbService;
 
-        private readonly ILogger<WeatherForecastController> _logger;
+        private readonly ILogger<PlanController> _logger;
 
         private PlanManager manager = new PlanManager();
         ConfigurationOptions options = null;
@@ -49,7 +49,7 @@ namespace Testingdockerapi.Controllers
         EndPoint endPoint = null;
         BlobContainerClient blobContainerClient = null;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger, IDistributedCache cache, ICosmosDbService cosmosDbService)
+        public PlanController(ILogger<PlanController> logger, IDistributedCache cache, ICosmosDbService cosmosDbService)
         {
             _logger = logger;
             _cache = cache;
