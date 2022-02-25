@@ -76,7 +76,7 @@ namespace Testingdockerapi.Controllers
         [Route("GetClient")]
         public List<Client> GetClient(string name)
         {
-            // Done and Tested OK.
+            _logger.LogInformation("Fetching client names matching {0}", name);
             return manager.GetClient(name,_cache,connection);
         }
 

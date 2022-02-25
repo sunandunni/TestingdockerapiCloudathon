@@ -8,6 +8,7 @@ using Microsoft.Extensions.Caching.Distributed;
 using TestingDockerApi;
 using StackExchange.Redis;
 using Azure.Storage.Blobs;
+using Microsoft.Extensions.Logging;
 
 namespace Testingdockerapi.Business
 {
@@ -15,8 +16,29 @@ namespace Testingdockerapi.Business
     {
         public PlanRepository repository = new PlanRepository();
 
+        //public static ILoggerFactory LoggerFactory1 { get; } = new LoggerFactory();
+        //ILogger log = null;
+       
+        //public static ILogger CreateLogger<PlanManager>()
+        //{
+        //    var logger = LoggerFactory1.CreateLogger<PlanManager>();
+        //    return logger;
+        //}
+
+      
+
+        //ILogger<PlanManager> _logger = new Logger<PlanManager>()
+
+       
+        //public PlanManager()
+        //{
+        //    log = CreateLogger<PlanManager>();
+        //}
+
+
         public List<Client> GetClient(string name, IDistributedCache _cache, ConnectionMultiplexer connection)
         {
+            Logger<PlanManager>.log.LogInformation("Getting Client");
             var clientList = repository.GetClient(name, _cache, connection).Result;
             foreach (var client in clientList)
             {
@@ -29,6 +51,7 @@ namespace Testingdockerapi.Business
 
         public Client GetSingleClient(string name, IDistributedCache _cache)
         {
+            Logger<PlanManager>.log.LogInformation("Getting single client");
             var client = repository.GetSingleClient(name, _cache).Result;
 
             var isRetired = client.retirementAge - client.currentAge < 0;
