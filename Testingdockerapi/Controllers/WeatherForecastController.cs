@@ -43,12 +43,22 @@ namespace Testingdockerapi.Controllers
         private readonly ILogger<WeatherForecastController> _logger;
 
         private PlanManager manager = new PlanManager();
+        ConfigurationOptions options = null;
+        ConnectionMultiplexer connection = null;
+        IDatabase db = null;
+        EndPoint endPoint = null;
+        BlobContainerClient blobContainerClient = null;
 
         public WeatherForecastController(ILogger<WeatherForecastController> logger, IDistributedCache cache, ICosmosDbService cosmosDbService)
         {
             _logger = logger;
             _cache = cache;
             _cosmosDbService = cosmosDbService ?? throw new ArgumentNullException(nameof(cosmosDbService));
+            options = ConfigurationOptions.Parse("otelowlsrediscache.redis.cache.windows.net:6380,password=fAm8LA1EnfBpRNQ3Yvrsfkofp9860K6HPAzCaE2gR9A=,ssl=True,abortConnect=False");
+            connection = ConnectionMultiplexer.Connect(options);
+            db = connection.GetDatabase();
+            endPoint = connection.GetEndPoints().First();
+            blobContainerClient = AzureBlobStorage.GetBlobContainer();
         }
 
         [HttpGet]
@@ -81,12 +91,8 @@ namespace Testingdockerapi.Controllers
 
 
 
-            string connectionString = "my_connection_string";
-            ConfigurationOptions options = ConfigurationOptions.Parse("sunandredistest.redis.cache.windows.net:6380,password=MP6Y2oZDBYdxoJSV6B5msJTJGm4MwMS4SAzCaKeiHxU=,ssl=True,abortConnect=False");
-            ConnectionMultiplexer connection = ConnectionMultiplexer.Connect(options);
-            IDatabase db = connection.GetDatabase();
-            EndPoint endPoint = connection.GetEndPoints().First();
-            RedisKey[] keys = connection.GetServer(endPoint).Keys(pattern: "*").ToArray();
+            
+            //RedisKey[] keys = connection.GetServer(endPoint).Keys(pattern: "*").ToArray();
 
             employeeDetails = await _cache.GetStringAsync(key);
             if (!string.IsNullOrEmpty(employeeDetails))
@@ -106,26 +112,26 @@ namespace Testingdockerapi.Controllers
 
         [HttpPost]
         [Route("SetCache")]
-        public async Task<Employee> SetCache([FromBody] Employee employee)
+        public async Task<Client> SetCache([FromBody] Client client)
         {
-            var key = employee.Id;
+            var key = client.id;
             //List<string> myTodos = new List<string>();
             //bool IsCached = false;
-            string employeeDetails = string.Empty;
-            employeeDetails = await _cache.GetStringAsync(key);
-            if (string.IsNullOrEmpty(employeeDetails))
-            {
-                var employeeDetailsValue = JsonConvert.SerializeObject(employee);
-                await _cache.SetStringAsync(key, employeeDetailsValue);
-                return employee;
+            string clientDetails = string.Empty;
+            var employeeDetails = await _cache.GetStringAsync(key);
+            //if (string.IsNullOrEmpty(employeeDetails))
+            //{
+                var clientDetailsValue = JsonConvert.SerializeObject(client);
+                await _cache.SetStringAsync(key, clientDetailsValue);
+                return client;
                 // loaded data from the redis cache.
                 //myTodos = JsonSerializer.Deserialize<List<string>>(cachedTodosString);
                 //IsCached = true;
-            }
-            else
-            {
-                return null;
-            }
+            //}
+            //else
+            //{
+            //    return null;
+            //}
         }
 
         // GET api/items
@@ -152,14 +158,14 @@ namespace Testingdockerapi.Controllers
             return CreatedAtAction(nameof(Get), new { id = item.Id }, item);
         }
 
-        [HttpPost]
-        [Route("UploadBlob")]
-        public async Task<string> UploadBlob()
-        {
-            await AzureBlobStorage.GetBlob();
-            return "ok";
+        //[HttpPost]
+        //[Route("UploadBlob")]
+        //public async Task<string> UploadBlob()
+        //{
+        //    await AzureBlobStorage.GetBlob();
+        //    return "ok";
            
-        }
+        //}
         // PUT api/items/5
         [HttpPut("{id}")]
         public async Task<IActionResult> Edit([FromBody] Item item)
@@ -179,29 +185,41 @@ namespace Testingdockerapi.Controllers
         [Route("GetClient")]
         public List<Client> GetClient(string name)
         {
-            return manager.GetClient(name,_cache);
+            // Done and Tested OK.
+            return manager.GetClient(name,_cache,connection);
+        }
+
+        [HttpPost]
+        [Route("UpdateClient/{clientId}")]
+        public bool UpdateClient(string clientId, double goalAmount, int retirementAge)
+        {
+            // Done and Tested OK
+            return manager.UpdateClient(clientId,_cache,goalAmount,retirementAge);
+        }
+
+        [HttpPost]
+        [Route("UpdateCashflows")]
+        public bool UpdateCashflow(List<Cashflow> cashflow)
+        {
+            // DOne and Tested OK.
+            return manager.UpdateCashflow(cashflow, _cache);
+            
         }
 
         [HttpGet]
-        [Route("GetGoal")]
-        public Goal GetGoal(int clientId)
+        [Route("GetCashflows/{clientId}")]
+        public List<Cashflow> getCashflows(string clientId)
         {
-            return manager.GetGoal(clientId,_cache);
-        }
-
-        [HttpGet]
-        [Route("GetCashflows")]
-        public List<Cashflow> getCashflows(int clientId)
-        {
-            return manager.GetCashflows(clientId,_cache);
+            // Done and Tested OK.
+            return manager.GetCashflows(clientId,_cache,connection);
 
         }
 
         [HttpGet]
-        [Route("GetAccounts")]
-        public List<Account> getAccounts(int clientId)
+        [Route("GetAccounts/{clientId}")]
+        public List<Account> getAccounts(string clientId)
         {
-            return manager.GetAccounts(clientId);
+            return manager.GetAccounts(clientId,blobContainerClient);
         }
 
     }

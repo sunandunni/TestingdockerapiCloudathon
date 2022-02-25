@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace Testingdockerapi.Entities
 {
-    public enum CashflowType { Income, Expense}
+    
     public class Cashflow
     {
         public string id { get; set; }
         public string ClientId { get; set; }
-        public CashflowType type { get; set; }
+        public string type { get; set; }
         public double amount { get; set; }
     }
 }

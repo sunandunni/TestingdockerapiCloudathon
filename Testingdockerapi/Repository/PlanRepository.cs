@@ -6,6 +6,7 @@ using Testingdockerapi.Entities;
 using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
 using TestingDockerApi;
+using StackExchange.Redis;
 
 namespace Testingdockerapi.Repository
 {
@@ -13,13 +14,37 @@ namespace Testingdockerapi.Repository
     {
 
         // ALL Ids should be in string
-        public async Task<List<Client>> GetClient(string name, IDistributedCache _cache) {
+        public async Task<List<Client>> GetClient(string name, IDistributedCache _cache, ConnectionMultiplexer connection) {
 
             //TO DO   -- get list of keys starting with CL..get values from that key and return clients containing the name
             //1. GetHashCode all keys
             //2. Get all values for that key
             //3. From that list return only clients, wfor which name contains the passed name.
+            List<Client> clientList = new List<Client>();
+            var endPoint = connection.GetEndPoints().First();
+            RedisKey[] keys = connection.GetServer(endPoint).Keys(pattern: "*").ToArray();
+            
+            foreach(var key in keys)
+            {
+                if (!key.ToString().Contains("-CF"))
+                {
+                    var client = _cache.GetStringAsync(key).Result;
+                    if (client != null)
+                    {
+                        var ClientData = JsonConvert.DeserializeObject<Client>(client);
+                        if (ClientData.name.Contains(name, StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            clientList.Add(ClientData);
+                        }
+                    }
+                }
+            }
 
+            if(clientList.Count == 0)
+            {
+                clientList = null;
+            }
+            return clientList;
             //string employeeDetails = string.Empty;
             //employeeDetails = await _cache.GetStringAsync(name);
             //if (!string.IsNullOrEmpty(employeeDetails))
@@ -35,7 +60,7 @@ namespace Testingdockerapi.Repository
             //{
             //    return null;
             //}
-            return null;
+            //return null;
         }
 
         public async Task<Client> GetClient(int clientId, IDistributedCache _cache)
@@ -102,47 +127,95 @@ namespace Testingdockerapi.Repository
             }
         }
 
-        public List<Cashflow> GetCashflows(int clientId, IDistributedCache _cache)
+        public async Task<bool> UpdateClient(string clientId, IDistributedCache _cache, double goalAmount, int retirementAge)
         {
-            //TO DO   -- get list of keys starting with CF..get values from that key and return clients containing the name
+            var key = clientId;
+            //List<string> myTodos = new List<string>();
+            //bool IsCached = false;
+            string clientDetails = string.Empty;
+            clientDetails = await _cache.GetStringAsync(key.ToString());
+            if (string.IsNullOrEmpty(clientDetails))
+            {
+                return false;
+                // loaded data from the redis cache.
+                //myTodos = JsonSerializer.Deserialize<List<string>>(cachedTodosString);
+                //IsCached = true;
+            }
+            else
+            {
+                var clientDetailsValue = JsonConvert.DeserializeObject<Client>(clientDetails);
+                clientDetailsValue.goal.amout = goalAmount;
+                clientDetailsValue.retirementAge = retirementAge;
+                var updatedClient = JsonConvert.SerializeObject(clientDetailsValue);
+                //1 Deserialize to linet object
+                //2. Add goal amount
+                //3. COnvert to string
+                await _cache.SetStringAsync(key.ToString(), updatedClient);
+                return true;
+            }
+        }
+
+        public async Task<bool> UpdateCashflow(List<Cashflow> cashflows, IDistributedCache _cache)
+        {
+            foreach (var cashflow in cashflows)
+            {
+                var updatedCashdlow = JsonConvert.SerializeObject(cashflow);
+
+                //    //1 Deserialize to linet object
+                //    //2. Add goal amount
+                //    //3. COnvert to string
+                await _cache.SetStringAsync(cashflow.id.ToString(), updatedCashdlow);
+            }
+            return true;
+            
+        }
+
+
+        public List<Cashflow> GetCashflows(string clientId, IDistributedCache _cache, ConnectionMultiplexer connection)
+        {
+            //TO DO   -- get list of keys starting with CL..get values from that key and return clients containing the name
             //1. GetHashCode all keys
             //2. Get all values for that key
-            //3. From that list return only cashflows, wfor which clientid equals the passed clientid.
+            //3. From that list return only clients, wfor which name contains the passed name.
+            List<Cashflow> cashflowList = new List<Cashflow>();
+            var endPoint = connection.GetEndPoints().First();
+            RedisKey[] keys = connection.GetServer(endPoint).Keys(pattern: clientId.ToString() + "-CF*").ToArray();
 
-            //string employeeDetails = string.Empty;
-            //employeeDetails = await _cache.GetStringAsync(name);
-            //if (!string.IsNullOrEmpty(employeeDetails))
-            //{
-            //    var employeeDetailsValue = JsonConvert.DeserializeObject<Client>(employeeDetails);
+            foreach (var key in keys)
+            {
+                var cashflow = _cache.GetStringAsync(key).Result;
+                if (cashflow != null)
+                {
+                    var cashflowData = JsonConvert.DeserializeObject<Cashflow>(cashflow);
 
-            //    return employeeDetailsValue;
-            //    // loaded data from the redis cache.
-            //    //myTodos = JsonSerializer.Deserialize<List<string>>(cachedTodosString);
-            //    //IsCached = true;
-            //}
-            //else
-            //{
-            //    return null;
-            //}
-            return null;
+                    cashflowList.Add(cashflowData);
+                   
+                }
+            }
+
+            if (cashflowList.Count == 0)
+            {
+                cashflowList = null;
+            }
+            return cashflowList;
         }
         public List<Account> GetAccounts(int clientId, IDistributedCache _cache)
         {
-            var accounts  = AzureBlobStorage.GetBlob("AccountfileName");
+            var accounts  = AzureBlobStorage.GetAccountBlob("AccountfileName");
             //Logic to change the string to accounts for the client id
 
             //1 . Either read blob storage during startup or create in constructor
             return null;
         }
 
-        public Plan GetPlan(int clientId, IDistributedCache _cache) {
-            Plan plan = new Plan();
-            plan.clientId = clientId;
-            plan.client = GetClient(clientId,_cache).Result;
-            plan.goal = GetGoal(clientId,_cache).Result;
-            plan.cashflows = GetCashflows(clientId,_cache);
-            plan.accounts = GetAccounts(clientId,_cache);
-            return plan;
-        }
+        //public Plan GetPlan(string clientId, IDistributedCache _cache) {
+        //    Plan plan = new Plan();
+        //    plan.clientId = clientId;
+        //    plan.client = GetClient(clientId,_cache).Result;
+        //    plan.goal = GetGoal(clientId,_cache).Result;
+        //    plan.cashflows = GetCashflows(clientId,_cache);
+        //    plan.accounts = GetAccounts(clientId,_cache);
+        //    return plan;
+        //}
     }
 }
