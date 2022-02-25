@@ -39,7 +39,6 @@ namespace Testingdockerapi
             {
                 setupAction.Configuration = Configuration.GetConnectionString("RedisCache");
             });
-            services.AddSingleton<ICosmosDbService>(InitializeCosmosClientInstanceAsync(Configuration.GetSection("CosmosDb")).GetAwaiter().GetResult());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -65,17 +64,5 @@ namespace Testingdockerapi
             app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v2/swagger.json", "Plan Service"));
         }
 
-        private static async Task<CosmosDbService> InitializeCosmosClientInstanceAsync(IConfigurationSection configurationSection)
-        {
-            var databaseName = configurationSection["DatabaseName"];
-            var containerName = configurationSection["ContainerName"];
-            var account = configurationSection["Account"];
-            var key = configurationSection["Key"];
-            var client = new Microsoft.Azure.Cosmos.CosmosClient(account, key);
-            var database = await client.CreateDatabaseIfNotExistsAsync(databaseName);
-            await database.Database.CreateContainerIfNotExistsAsync(containerName, "/id");
-            var cosmosDbService = new CosmosDbService(client, databaseName, containerName);
-            return cosmosDbService;
-        }
     }
 }

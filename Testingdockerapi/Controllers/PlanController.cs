@@ -38,8 +38,7 @@ namespace Testingdockerapi.Controllers
     //    new Employee("2","Saumya",23)
     //};
         private readonly IDistributedCache _cache;
-        private readonly ICosmosDbService _cosmosDbService;
-
+       
         private readonly ILogger<PlanController> _logger;
 
         private PlanManager manager = new PlanManager();
@@ -49,11 +48,10 @@ namespace Testingdockerapi.Controllers
         EndPoint endPoint = null;
         BlobContainerClient blobContainerClient = null;
 
-        public PlanController(ILogger<PlanController> logger, IDistributedCache cache, ICosmosDbService cosmosDbService)
+        public PlanController(ILogger<PlanController> logger, IDistributedCache cache)
         {
             _logger = logger;
             _cache = cache;
-            _cosmosDbService = cosmosDbService ?? throw new ArgumentNullException(nameof(cosmosDbService));
             options = ConfigurationOptions.Parse("otelowlsrediscache.redis.cache.windows.net:6380,password=fAm8LA1EnfBpRNQ3Yvrsfkofp9860K6HPAzCaE2gR9A=,ssl=True,abortConnect=False");
             connection = ConnectionMultiplexer.Connect(options);
             db = connection.GetDatabase();
@@ -61,18 +59,18 @@ namespace Testingdockerapi.Controllers
             blobContainerClient = AzureBlobStorage.GetBlobContainer();
         }
 
-        [HttpGet]
-        public IEnumerable<WeatherForecast> Get()
-        {
-            var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-            {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
-            })
-            .ToArray();
-        }
+        //[HttpGet]
+        //public IEnumerable<WeatherForecast> Get()
+        //{
+        //    var rng = new Random();
+        //    return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+        //    {
+        //        Date = DateTime.Now.AddDays(index),
+        //        TemperatureC = rng.Next(-20, 55),
+        //        Summary = Summaries[rng.Next(Summaries.Length)]
+        //    })
+        //    .ToArray();
+        //}
 
         [HttpGet]
         [Route("GetClient")]
