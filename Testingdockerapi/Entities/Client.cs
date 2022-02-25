@@ -6,11 +6,12 @@ namespace Testingdockerapi.Entities
 {
     public class Client
     {
-        public int id { get; set; }
+        public string id { get; set; }
         public string name { get; set; }
         public double salary { get; set; }
         public int currentAge { get; set; }
         public int retirementAge { get; set; }
+        public Goal goal { get; set; }
 
     }
 }
