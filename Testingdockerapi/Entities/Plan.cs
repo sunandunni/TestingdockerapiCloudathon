@@ -8,7 +8,6 @@ namespace Testingdockerapi.Entities
     {       
         public string clientId { get; set; }
         public Client client { get; set; }
-        public Goal goal { get; set; }
         public List<Cashflow> cashflows { get; set; }
         public List<Account> accounts { get; set; }
     }

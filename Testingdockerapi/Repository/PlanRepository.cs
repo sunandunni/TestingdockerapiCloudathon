@@ -7,6 +7,7 @@ using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
 using TestingDockerApi;
 using StackExchange.Redis;
+using Azure.Storage.Blobs;
 
 namespace Testingdockerapi.Repository
 {
@@ -40,10 +41,6 @@ namespace Testingdockerapi.Repository
                 }
             }
 
-            if(clientList.Count == 0)
-            {
-                clientList = null;
-            }
             return clientList;
             //string employeeDetails = string.Empty;
             //employeeDetails = await _cache.GetStringAsync(name);
@@ -63,15 +60,15 @@ namespace Testingdockerapi.Repository
             //return null;
         }
 
-        public async Task<Client> GetClient(int clientId, IDistributedCache _cache)
+        public async Task<Client> GetSingleClient(string clientId, IDistributedCache _cache)
         {
-            string employeeDetails = string.Empty;
-            employeeDetails = await _cache.GetStringAsync(clientId.ToString());
-            if (!string.IsNullOrEmpty(employeeDetails))
+            string clientDetails = string.Empty;
+            clientDetails = await _cache.GetStringAsync(clientId.ToString());
+            if (!string.IsNullOrEmpty(clientDetails))
             {
-                var employeeDetailsValue = JsonConvert.DeserializeObject<Client>(employeeDetails);
+                var clientDetailsValue = JsonConvert.DeserializeObject<Client>(clientDetails);
 
-                return employeeDetailsValue;
+                return clientDetailsValue;
                 // loaded data from the redis cache.
                 //myTodos = JsonSerializer.Deserialize<List<string>>(cachedTodosString);
                 //IsCached = true;
@@ -144,8 +141,14 @@ namespace Testingdockerapi.Repository
             else
             {
                 var clientDetailsValue = JsonConvert.DeserializeObject<Client>(clientDetails);
-                clientDetailsValue.goal.amout = goalAmount;
-                clientDetailsValue.retirementAge = retirementAge;
+                if (goalAmount > 0)
+                {
+                    clientDetailsValue.goal.amout = goalAmount;
+                }
+                if (retirementAge > 0)
+                {
+                    clientDetailsValue.retirementAge = retirementAge;
+                }
                 var updatedClient = JsonConvert.SerializeObject(clientDetailsValue);
                 //1 Deserialize to linet object
                 //2. Add goal amount
@@ -199,23 +202,24 @@ namespace Testingdockerapi.Repository
             }
             return cashflowList;
         }
-        public List<Account> GetAccounts(int clientId, IDistributedCache _cache)
+        public List<Account> GetAccounts(string clientId, BlobContainerClient blobContainerClient)
         {
-            var accounts  = AzureBlobStorage.GetAccountBlob("AccountfileName");
+            var accounts  = AzureBlobStorage.GetAccountBlob(clientId, blobContainerClient);
             //Logic to change the string to accounts for the client id
 
             //1 . Either read blob storage during startup or create in constructor
-            return null;
+            return accounts.Result;
         }
 
-        //public Plan GetPlan(string clientId, IDistributedCache _cache) {
-        //    Plan plan = new Plan();
-        //    plan.clientId = clientId;
-        //    plan.client = GetClient(clientId,_cache).Result;
-        //    plan.goal = GetGoal(clientId,_cache).Result;
-        //    plan.cashflows = GetCashflows(clientId,_cache);
-        //    plan.accounts = GetAccounts(clientId,_cache);
-        //    return plan;
-        //}
+        public Plan GetPlan(string clientId, IDistributedCache _cache,ConnectionMultiplexer connection, BlobContainerClient blobContainerClient)
+        {
+            Plan plan = new Plan();
+            plan.clientId = clientId;
+            plan.client = GetSingleClient(clientId, _cache).Result;
+            //plan.goal = GetGoal(clientId, _cache).Result;
+            plan.cashflows = GetCashflows(clientId,_cache,connection);
+            plan.accounts = GetAccounts(clientId, blobContainerClient);
+            return plan;
+        }
     }
 }

@@ -75,113 +75,6 @@ namespace Testingdockerapi.Controllers
         }
 
         [HttpGet]
-        [Route("Name")]
-        public string GetName()
-        {
-            return "Sunand";
-        }
-
-        [HttpGet]
-        [Route("GetCache")]
-        public async Task<Employee> GetCache(string key)
-        {
-            //List<string> myTodos = new List<string>();
-            //bool IsCached = false;
-            string employeeDetails = string.Empty;
-
-
-
-            
-            //RedisKey[] keys = connection.GetServer(endPoint).Keys(pattern: "*").ToArray();
-
-            employeeDetails = await _cache.GetStringAsync(key);
-            if (!string.IsNullOrEmpty(employeeDetails))
-            {
-                var employeeDetailsValue = JsonConvert.DeserializeObject<Employee>(employeeDetails);
-               
-                return employeeDetailsValue;
-                // loaded data from the redis cache.
-                //myTodos = JsonSerializer.Deserialize<List<string>>(cachedTodosString);
-                //IsCached = true;
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        [HttpPost]
-        [Route("SetCache")]
-        public async Task<Client> SetCache([FromBody] Client client)
-        {
-            var key = client.id;
-            //List<string> myTodos = new List<string>();
-            //bool IsCached = false;
-            string clientDetails = string.Empty;
-            var employeeDetails = await _cache.GetStringAsync(key);
-            //if (string.IsNullOrEmpty(employeeDetails))
-            //{
-                var clientDetailsValue = JsonConvert.SerializeObject(client);
-                await _cache.SetStringAsync(key, clientDetailsValue);
-                return client;
-                // loaded data from the redis cache.
-                //myTodos = JsonSerializer.Deserialize<List<string>>(cachedTodosString);
-                //IsCached = true;
-            //}
-            //else
-            //{
-            //    return null;
-            //}
-        }
-
-        // GET api/items
-        [HttpGet]
-        [Route("GetCosmos")]
-        public async Task<IActionResult> List()
-        {
-            return Ok(await _cosmosDbService.GetMultipleAsync("SELECT * FROM c"));
-        }
-        // GET api/items/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(string id)
-        {
-            return Ok(await _cosmosDbService.GetAsync(id));
-        
-        }
-        // POST api/items
-        [HttpPost]
-        [Route("UpdateItem")]
-        public async Task<IActionResult> Create([FromBody] Item item)
-        {
-            item.Id = Guid.NewGuid().ToString();
-            await _cosmosDbService.AddAsync(item);
-            return CreatedAtAction(nameof(Get), new { id = item.Id }, item);
-        }
-
-        //[HttpPost]
-        //[Route("UploadBlob")]
-        //public async Task<string> UploadBlob()
-        //{
-        //    await AzureBlobStorage.GetBlob();
-        //    return "ok";
-           
-        //}
-        // PUT api/items/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Edit([FromBody] Item item)
-        {
-            await _cosmosDbService.UpdateAsync(item.Id, item);
-            return NoContent();
-        }
-        // DELETE api/items/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(string id)
-        {
-            await _cosmosDbService.DeleteAsync(id);
-            return NoContent();
-        }
-
-        [HttpGet]
         [Route("GetClient")]
         public List<Client> GetClient(string name)
         {
@@ -220,6 +113,13 @@ namespace Testingdockerapi.Controllers
         public List<Account> getAccounts(string clientId)
         {
             return manager.GetAccounts(clientId,blobContainerClient);
+        }
+
+        [HttpGet]
+        [Route("GetPlan/{clientId}")]
+        public Plan getPlan(string clientId)
+        {
+            return manager.GetPlan(clientId,_cache,connection,blobContainerClient);
         }
 
     }
