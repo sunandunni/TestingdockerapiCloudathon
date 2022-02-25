@@ -120,5 +120,12 @@ namespace Testingdockerapi.Controllers
             return manager.GetPlan(clientId,_cache,connection,blobContainerClient);
         }
 
+        [HttpPost]
+        [Route("AnalyzePlan")]
+        public int analyzePlan(Plan plan)
+        {
+            return 85;
+        }
+
     }
 }
