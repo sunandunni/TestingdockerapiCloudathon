@@ -15,6 +15,7 @@ using OpenTracing.Propagation;
 using OpenTracing;
 using OpenTracing.Noop;
 using OpenTracing.Util;
+using Prometheus;
 
 namespace Testingdockerapi
 {
@@ -108,7 +109,11 @@ namespace Testingdockerapi
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapMetrics("./metrics");
             });
+
+            app.UseMetricServer();
+           
 
             app.UseSwagger();
             app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v2/swagger.json", "PlanService"));

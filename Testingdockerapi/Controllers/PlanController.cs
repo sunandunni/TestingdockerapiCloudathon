@@ -20,6 +20,8 @@ using Testingdockerapi.Entities;
 using Testingdockerapi.Business;
 using System.Net;
 using OpenTracing;
+using System.Net.Http;
+using System;
 
 
 namespace Testingdockerapi.Controllers
@@ -139,7 +141,23 @@ namespace Testingdockerapi.Controllers
         [Route("AnalyzePlan")]
         public int analyzePlan(Plan plan)
         {
-            return 85;
+            string pos = string.Empty;
+            string endpoint = "http://40.88.230.48/Analytics/AnalyzePlan";
+            using (HttpClient client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(endpoint);
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(
+                    new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                var content = new StringContent(JsonConvert.SerializeObject(plan,new JsonSerializerSettings { ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver()}),Encoding.UTF8,"application/json");
+                var response = client.PostAsync("", content);
+                if(response.Result.IsSuccessStatusCode)
+                {
+                    Task<string> contentTask = response.Result.Content.ReadAsStringAsync();
+                    pos = contentTask.Result;
+                }
+            }
+            return Convert.ToInt32(pos);
         }
 
     }
