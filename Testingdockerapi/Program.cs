@@ -26,13 +26,13 @@ namespace Testingdockerapi
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-             .ConfigureLogging(loggingBuilder =>
-             {
-                 loggingBuilder.ClearProviders();
-                 loggingBuilder
-                     .AddDebug()
-                     .AddEventLog();
-             })
+             //.ConfigureLogging(loggingBuilder =>
+             //{
+             //    loggingBuilder.ClearProviders();
+             //    loggingBuilder
+             //        .AddDebug()
+             //        .AddEventLog();
+             //})
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();

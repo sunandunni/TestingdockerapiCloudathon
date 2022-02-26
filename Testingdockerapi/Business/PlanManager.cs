@@ -38,7 +38,7 @@ namespace Testingdockerapi.Business
 
         public List<Client> GetClient(string name, IDistributedCache _cache, ConnectionMultiplexer connection)
         {
-            Logger<PlanManager>.log.LogInformation("Getting Client");
+            //Logger<PlanManager>.log.LogInformation("Getting Client");
             var clientList = repository.GetClient(name, _cache, connection).Result;
             foreach (var client in clientList)
             {
@@ -51,7 +51,7 @@ namespace Testingdockerapi.Business
 
         public Client GetSingleClient(string name, IDistributedCache _cache)
         {
-            Logger<PlanManager>.log.LogInformation("Getting single client");
+            //Logger<PlanManager>.log.LogInformation("Getting single client");
             var client = repository.GetSingleClient(name, _cache).Result;
 
             var isRetired = client.retirementAge - client.currentAge < 0;
