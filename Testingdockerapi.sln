@@ -5,8 +5,6 @@ VisualStudioVersion = 16.0.32126.315
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Testingdockerapi", "Testingdockerapi\Testingdockerapi.csproj", "{1E998A0B-6D16-4828-8742-CED499D1C55A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Entities", "Entities\Entities.csproj", "{B4501B2A-7A4D-4C5A-82B5-B6D4C76E98E1}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,10 +15,6 @@ Global
 		{1E998A0B-6D16-4828-8742-CED499D1C55A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E998A0B-6D16-4828-8742-CED499D1C55A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E998A0B-6D16-4828-8742-CED499D1C55A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B4501B2A-7A4D-4C5A-82B5-B6D4C76E98E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B4501B2A-7A4D-4C5A-82B5-B6D4C76E98E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B4501B2A-7A4D-4C5A-82B5-B6D4C76E98E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B4501B2A-7A4D-4C5A-82B5-B6D4C76E98E1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

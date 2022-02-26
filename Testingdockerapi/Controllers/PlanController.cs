@@ -19,6 +19,7 @@ using TestingDockerApi;
 using Testingdockerapi.Entities;
 using Testingdockerapi.Business;
 using System.Net;
+using OpenTracing;
 
 
 namespace Testingdockerapi.Controllers
@@ -40,6 +41,7 @@ namespace Testingdockerapi.Controllers
         private readonly IDistributedCache _cache;
        
         private readonly ILogger<PlanController> _logger;
+        private ITracer _tracer;
 
         private PlanManager manager = new PlanManager();
         ConfigurationOptions options = null;
@@ -48,7 +50,7 @@ namespace Testingdockerapi.Controllers
         EndPoint endPoint = null;
         BlobContainerClient blobContainerClient = null;
 
-        public PlanController(ILogger<PlanController> logger, IDistributedCache cache)
+        public PlanController(ILogger<PlanController> logger, IDistributedCache cache, ITracer tracer)
         {
             _logger = logger;
             _cache = cache;
@@ -57,6 +59,7 @@ namespace Testingdockerapi.Controllers
             db = connection.GetDatabase();
             endPoint = connection.GetEndPoints().First();
             blobContainerClient = AzureBlobStorage.GetBlobContainer();
+            _tracer = tracer;
         }
 
         //[HttpGet]
@@ -77,6 +80,18 @@ namespace Testingdockerapi.Controllers
         public List<Client> GetClient(string name)
         {
             _logger.LogInformation("Fetching client names matching {0}", name);
+
+            var operationName = "GetClient";
+            var builder = _tracer.BuildSpan(operationName);
+
+            using (var scope = builder.StartActive(true))
+            {
+                var span = scope.Span;
+
+                var log = $"Fetching client names matching" +  name;
+                span.Log(log);
+            }
+
             return manager.GetClient(name,_cache,connection);
         }
 
