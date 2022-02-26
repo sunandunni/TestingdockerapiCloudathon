@@ -101,6 +101,7 @@ namespace Testingdockerapi.Controllers
         [Route("UpdateClient/{clientId}")]
         public bool UpdateClient(string clientId, double goalAmount, int retirementAge)
         {
+            _logger.LogInformation("Update client details for {0}", clientId);
             // Done and Tested OK
             return manager.UpdateClient(clientId,_cache,goalAmount,retirementAge);
         }
@@ -109,6 +110,7 @@ namespace Testingdockerapi.Controllers
         [Route("UpdateCashflows")]
         public bool UpdateCashflow(List<Cashflow> cashflow)
         {
+            _logger.LogInformation("Update Cashflows");
             // DOne and Tested OK.
             return manager.UpdateCashflow(cashflow, _cache);
             
@@ -118,6 +120,7 @@ namespace Testingdockerapi.Controllers
         [Route("GetCashflows/{clientId}")]
         public List<Cashflow> getCashflows(string clientId)
         {
+            _logger.LogInformation("Getting Cashflows for - {0}", clientId);
             // Done and Tested OK.
             return manager.GetCashflows(clientId,_cache,connection);
 
@@ -127,6 +130,7 @@ namespace Testingdockerapi.Controllers
         [Route("GetAccounts/{clientId}")]
         public List<Account> getAccounts(string clientId)
         {
+            _logger.LogInformation("Getting Accounts for - {0}", clientId);
             return manager.GetAccounts(clientId,blobContainerClient);
         }
 
@@ -134,6 +138,7 @@ namespace Testingdockerapi.Controllers
         [Route("GetPlan/{clientId}")]
         public Plan getPlan(string clientId)
         {
+            _logger.LogInformation("Getting Plan Details for - {0}", clientId);
             return manager.GetPlan(clientId,_cache,connection,blobContainerClient);
         }
 
@@ -141,6 +146,7 @@ namespace Testingdockerapi.Controllers
         [Route("AnalyzePlan")]
         public int analyzePlan(Plan plan)
         {
+            _logger.LogInformation("Returning POS");
             string pos = string.Empty;
             string endpoint = "http://40.88.230.48/Analytics/AnalyzePlan";
             using (HttpClient client = new HttpClient())
@@ -155,6 +161,10 @@ namespace Testingdockerapi.Controllers
                 {
                     Task<string> contentTask = response.Result.Content.ReadAsStringAsync();
                     pos = contentTask.Result;
+                }
+                else
+                {
+                    _logger.LogError("POS analysis failed!!!");
                 }
             }
             return Convert.ToInt32(pos);
