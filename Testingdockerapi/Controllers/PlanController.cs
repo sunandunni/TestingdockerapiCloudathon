@@ -79,7 +79,7 @@ namespace Testingdockerapi.Controllers
 
         [HttpGet]
         [Route("GetClient")]
-        public List<Client> GetClient(string name)
+        public List<Client> GetClient(string name, bool getAllClients = false)
         {
             _logger.LogInformation("Fetching client names matching {0}", name);
 
@@ -94,7 +94,7 @@ namespace Testingdockerapi.Controllers
                 span.Log(log);
             }
 
-            return manager.GetClient(name,_cache,connection);
+            return manager.GetClient(name,_cache,connection, getAllClients);
         }
 
         [HttpPost]
@@ -114,6 +114,16 @@ namespace Testingdockerapi.Controllers
             // DOne and Tested OK.
             return manager.UpdateCashflow(cashflow, _cache);
             
+        }
+
+        [HttpPost]
+        [Route("SetClients")]
+        public bool SetClients(List<Client> clientList)
+        {
+            _logger.LogInformation("Adding Clients");
+            // DOne and Tested OK.
+            return manager.AddClients(clientList, _cache);
+
         }
 
         [HttpGet]

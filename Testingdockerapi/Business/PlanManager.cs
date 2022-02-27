@@ -36,10 +36,23 @@ namespace Testingdockerapi.Business
         //}
 
 
-        public List<Client> GetClient(string name, IDistributedCache _cache, ConnectionMultiplexer connection)
+        public List<Client> GetClient(string name, IDistributedCache _cache, ConnectionMultiplexer connection, bool getAllClients = false)
         {
             //Logger<PlanManager>.log.LogInformation("Getting Client");
-            var clientList = repository.GetClient(name, _cache, connection).Result;
+            var clientList = repository.GetClient(name, _cache, connection,getAllClients).Result;
+            foreach (var client in clientList)
+            {
+                var isRetired = client.retirementAge - client.currentAge < 0;
+                client.goal.startYear = isRetired ? DateTime.Now.Year : DateTime.Now.Year + (client.retirementAge - client.currentAge + 1);
+                client.goal.endYear = DateTime.Now.Year + (100 - client.currentAge + 1);
+            }
+            return clientList;
+        }
+
+        public List<Client> GetAllClients(IDistributedCache _cache, ConnectionMultiplexer connection)
+        {
+            //Logger<PlanManager>.log.LogInformation("Getting Client");
+            var clientList = repository.GetAllClients(_cache, connection).Result;
             foreach (var client in clientList)
             {
                 var isRetired = client.retirementAge - client.currentAge < 0;
@@ -82,6 +95,12 @@ namespace Testingdockerapi.Business
         public bool UpdateCashflow(List<Cashflow> cashflows, IDistributedCache _cache)
         {
             return repository.UpdateCashflow(cashflows, _cache).Result;
+
+        }
+
+        public bool AddClients(List<Client> clientList, IDistributedCache _cache)
+        {
+            return repository.AddClients(clientList, _cache).Result;
 
         }
 

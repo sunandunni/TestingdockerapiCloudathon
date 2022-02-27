@@ -15,7 +15,8 @@ namespace Testingdockerapi.Repository
     {
 
         // ALL Ids should be in string
-        public async Task<List<Client>> GetClient(string name, IDistributedCache _cache, ConnectionMultiplexer connection) {
+        public async Task<List<Client>> GetClient(string name, IDistributedCache _cache, ConnectionMultiplexer connection, bool getAllClients = false)
+        {
 
             //TO DO   -- get list of keys starting with CL..get values from that key and return clients containing the name
             //1. GetHashCode all keys
@@ -24,19 +25,32 @@ namespace Testingdockerapi.Repository
             List<Client> clientList = new List<Client>();
             var endPoint = connection.GetEndPoints().First();
             RedisKey[] keys = connection.GetServer(endPoint).Keys(pattern: "*").ToArray();
-            
-            foreach(var key in keys)
+
+            foreach (var key in keys)
             {
-                if (!key.ToString().Contains("-CF"))
+                if (!key.ToString().Contains("-CF") && key.ToString().Contains("CL"))
                 {
-                    var client = _cache.GetStringAsync(key).Result;
-                    if (client != null)
+                    if (key.ToString().StartsWith("CL"))
                     {
-                        var ClientData = JsonConvert.DeserializeObject<Client>(client);
-                        if (ClientData.name.Contains(name, StringComparison.InvariantCultureIgnoreCase))
+                        var client = _cache.GetStringAsync(key).Result;
+
+                        if (client != null)
                         {
-                            clientList.Add(ClientData);
+                            var ClientData = JsonConvert.DeserializeObject<Client>(client);
+                            if(getAll)
+                            {
+                                clientList.Add(ClientData);
+                            }
+                            else if (ClientData.name.Contains(name, StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                clientList.Add(ClientData);
+                            }
                         }
+                    }
+                    else
+                    {
+                        var db = connection.GetDatabase();
+                        db.KeyDelete(key);
                     }
                 }
             }
@@ -60,6 +74,60 @@ namespace Testingdockerapi.Repository
             //return null;
         }
 
+
+        public async Task<List<Client>> GetAllClients(IDistributedCache _cache, ConnectionMultiplexer connection)
+        {
+
+            //TO DO   -- get list of keys starting with CL..get values from that key and return clients containing the name
+            //1. GetHashCode all keys
+            //2. Get all values for that key
+            //3. From that list return only clients, wfor which name contains the passed name.
+            List<Client> clientList = new List<Client>();
+            var endPoint = connection.GetEndPoints().First();
+            RedisKey[] keys = connection.GetServer(endPoint).Keys(pattern: "*").ToArray();
+
+            foreach (var key in keys)
+            {
+                if (!key.ToString().Contains("-CF") && key.ToString().Contains("CL"))
+                {
+                    if (key.ToString().StartsWith("CL"))
+                    {
+                        var client = _cache.GetStringAsync(key).Result;
+
+                        if (client != null)
+                        {
+                            var ClientData = JsonConvert.DeserializeObject<Client>(client);
+
+                            clientList.Add(ClientData);
+
+                        }
+                    }
+                    else
+                    {
+                        var db = connection.GetDatabase();
+                        db.KeyDelete(key);
+                    }
+                }
+            }
+
+            return clientList;
+            //string employeeDetails = string.Empty;
+            //employeeDetails = await _cache.GetStringAsync(name);
+            //if (!string.IsNullOrEmpty(employeeDetails))
+            //{
+            //    var employeeDetailsValue = JsonConvert.DeserializeObject<Client>(employeeDetails);
+
+            //    return employeeDetailsValue;
+            //    // loaded data from the redis cache.
+            //    //myTodos = JsonSerializer.Deserialize<List<string>>(cachedTodosString);
+            //    //IsCached = true;
+            //}
+            //else
+            //{
+            //    return null;
+            //}
+            //return null;
+        }
         public async Task<Client> GetSingleClient(string clientId, IDistributedCache _cache)
         {
             string clientDetails = string.Empty;
@@ -170,7 +238,22 @@ namespace Testingdockerapi.Repository
                 await _cache.SetStringAsync(cashflow.id.ToString(), updatedCashdlow);
             }
             return true;
-            
+
+        }
+
+        public async Task<bool> AddClients(List<Client> clientList, IDistributedCache _cache)
+        {
+            foreach (var client in clientList)
+            {
+                var updatedClient = JsonConvert.SerializeObject(client);
+
+                //    //1 Deserialize to linet object
+                //    //2. Add goal amount
+                //    //3. COnvert to string
+                await _cache.SetStringAsync(client.id.ToString(), updatedClient);
+            }
+            return true;
+
         }
 
 
@@ -192,7 +275,7 @@ namespace Testingdockerapi.Repository
                     var cashflowData = JsonConvert.DeserializeObject<Cashflow>(cashflow);
 
                     cashflowList.Add(cashflowData);
-                   
+
                 }
             }
 
@@ -204,20 +287,20 @@ namespace Testingdockerapi.Repository
         }
         public List<Account> GetAccounts(string clientId, BlobContainerClient blobContainerClient)
         {
-            var accounts  = AzureBlobStorage.GetAccountBlob(clientId, blobContainerClient);
+            var accounts = AzureBlobStorage.GetAccountBlob(clientId, blobContainerClient);
             //Logic to change the string to accounts for the client id
 
             //1 . Either read blob storage during startup or create in constructor
             return accounts.Result;
         }
 
-        public Plan GetPlan(string clientId, IDistributedCache _cache,ConnectionMultiplexer connection, BlobContainerClient blobContainerClient)
+        public Plan GetPlan(string clientId, IDistributedCache _cache, ConnectionMultiplexer connection, BlobContainerClient blobContainerClient)
         {
             Plan plan = new Plan();
             plan.clientId = clientId;
             plan.client = GetSingleClient(clientId, _cache).Result;
             //plan.goal = GetGoal(clientId, _cache).Result;
-            plan.cashflows = GetCashflows(clientId,_cache,connection);
+            plan.cashflows = GetCashflows(clientId, _cache, connection);
             plan.accounts = GetAccounts(clientId, blobContainerClient);
             return plan;
         }
