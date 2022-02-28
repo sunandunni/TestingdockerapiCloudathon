@@ -16,6 +16,7 @@ using OpenTracing;
 using OpenTracing.Noop;
 using OpenTracing.Util;
 using Prometheus;
+using Testingdockerapi.Business;
 
 namespace Testingdockerapi
 {
@@ -33,6 +34,7 @@ namespace Testingdockerapi
         {
             //IWebHostEnvironment _environment;
             services.AddControllers();
+            services.AddTransient<PlanManager>();
             services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v2", new Microsoft.OpenApi.Models.OpenApiInfo
@@ -87,10 +89,12 @@ namespace Testingdockerapi
         }
 
             // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-            public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+            public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
 
             app.UseCors("AllowOrigin");
+
+            ApplicationLogging.LoggerFactory = loggerFactory;
 
             if (env.IsDevelopment())
             {

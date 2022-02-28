@@ -75,13 +75,13 @@ namespace Testingdockerapi.Controllers
         //        Summary = Summaries[rng.Next(Summaries.Length)]
         //    })
         //    .ToArray();
-        //}
+        //}planm
 
         [HttpGet]
         [Route("GetClient")]
         public List<Client> GetClient(string name, bool getAllClients = false)
         {
-            _logger.LogInformation("Fetching client names matching {0}", name);
+            _logger.Log(LogLevel.Information,"Fetching client names matching {0}", name);
 
             var operationName = "GetClient";
             var builder = _tracer.BuildSpan(operationName);

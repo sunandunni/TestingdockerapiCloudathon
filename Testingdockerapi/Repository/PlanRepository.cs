@@ -15,18 +15,20 @@ namespace Testingdockerapi.Repository
     public class PlanRepository
     {
 
-        public static ILoggerFactory LoggerFactory1 { get; } = new LoggerFactory();
-        ILogger log = null;
+        //public static ILoggerFactory LoggerFactory1 { get; } = new LoggerFactory();
+        //ILogger log = null;
 
-        public static ILogger CreateLogger<PlanRepository>()
-        {
-            var logger = LoggerFactory1.CreateLogger<PlanRepository>();
-            return logger;
-        }
+        //public static ILogger CreateLogger<PlanRepository>()
+        //{
+        //    var logger = LoggerFactory1.CreateLogger<PlanRepository>();
+        //    return logger;
+        //}
+
+        private readonly ILogger log;
 
         public PlanRepository()
         {
-            log = CreateLogger<PlanRepository>();
+            log = ApplicationLogging.LoggerFactory.CreateLogger("Info");
         }
 
         // ALL Ids should be in string

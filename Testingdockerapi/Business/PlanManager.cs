@@ -16,29 +16,30 @@ namespace Testingdockerapi.Business
     {
         public PlanRepository repository = new PlanRepository();
 
-        public static ILoggerFactory LoggerFactory1 { get; } = new LoggerFactory();
-        ILogger log = null;
+        //public static ILoggerFactory LoggerFactory1 { get; } = new LoggerFactory();
+        //ILogger log = null;
 
-        public static ILogger CreateLogger<PlanManager>()
-        {
-            var logger = LoggerFactory1.CreateLogger<PlanManager>();
-            return logger;
-        }
+        //public static ILogger CreateLogger<PlanManager>()
+        //{
+        //    var logger = LoggerFactory1.CreateLogger<PlanManager>();
+        //    return logger;
+        //}
 
 
 
         //ILogger<PlanManager> _logger = new Logger<PlanManager>()
 
+        private readonly ILogger _logger;
 
         public PlanManager()
         {
-            log = CreateLogger<PlanManager>();
+            _logger = ApplicationLogging.LoggerFactory.CreateLogger("Info"); 
         }
 
 
         public List<Client> GetClient(string name, IDistributedCache _cache, ConnectionMultiplexer connection, bool getAllClients = false)
         {
-            log.LogInformation("Manager Layer - Getting Client");
+            _logger.LogInformation("Manager Layer - Getting Client");
             var clientList = repository.GetClient(name, _cache, connection,getAllClients).Result;
             foreach (var client in clientList)
             {
@@ -51,7 +52,7 @@ namespace Testingdockerapi.Business
 
         public List<Client> GetAllClients(IDistributedCache _cache, ConnectionMultiplexer connection)
         {
-            log.LogInformation("Manager Layer - Getting All Clients");
+            _logger.LogInformation("Manager Layer - Getting All Clients");
             //Logger<PlanManager>.log.LogInformation("Getting Client");
             var clientList = repository.GetAllClients(_cache, connection).Result;
             foreach (var client in clientList)
@@ -65,7 +66,7 @@ namespace Testingdockerapi.Business
 
         public Client GetSingleClient(string name, IDistributedCache _cache)
         {
-            log.LogInformation("Manager Layer - Getting Client Information");
+            _logger.LogInformation("Manager Layer - Getting Client Information");
             //Logger<PlanManager>.log.LogInformation("Getting single client");
             var client = repository.GetSingleClient(name, _cache).Result;
 
@@ -84,14 +85,14 @@ namespace Testingdockerapi.Business
 
         public bool UpdateClient(string clientId, IDistributedCache _cache, double goalAmount, int retirementAge)
         {
-            log.LogInformation("Manager Layer - Updating Client");
+            _logger.LogInformation("Manager Layer - Updating Client");
             return repository.UpdateClient(clientId, _cache, goalAmount, retirementAge).Result;
         }
 
 
         public List<Cashflow> GetCashflows(string clientId, IDistributedCache _cache, ConnectionMultiplexer connection)
         {
-            log.LogInformation("Manager Layer - Getting All Cashflows");
+            _logger.LogInformation("Manager Layer - Getting All Cashflows");
             return repository.GetCashflows(clientId, _cache, connection);
 
         }
@@ -104,7 +105,7 @@ namespace Testingdockerapi.Business
 
         public bool UpdateCashflow(List<Cashflow> cashflows, IDistributedCache _cache)
         {
-            log.LogInformation("Manager Layer - Updating Cashflow");
+            _logger.LogInformation("Manager Layer - Updating Cashflow");
             return repository.UpdateCashflow(cashflows, _cache).Result;
 
         }
@@ -117,14 +118,14 @@ namespace Testingdockerapi.Business
 
         public List<Account> GetAccounts(string clientId, BlobContainerClient blobContainerClient)
         {
-            log.LogInformation("Manager Layer - Getting Client Accounts");
+            _logger.LogInformation("Manager Layer - Getting Client Accounts");
             var accounts = repository.GetAccounts(clientId, blobContainerClient);
             return accounts;
         }
 
         public Plan GetPlan(string clientId, IDistributedCache _cache, ConnectionMultiplexer connection, BlobContainerClient blobContainerClient)
         {
-            log.LogInformation("Manager Layer - Fetching Plan Object");
+            _logger.LogInformation("Manager Layer - Fetching Plan Object");
             Plan plan = new Plan();
             plan.clientId = clientId;
             plan.client = GetSingleClient(clientId, _cache);
