@@ -37,7 +37,7 @@ namespace Testingdockerapi.Repository
                         if (client != null)
                         {
                             var ClientData = JsonConvert.DeserializeObject<Client>(client);
-                            if(getAll)
+                            if(getAllClients)
                             {
                                 clientList.Add(ClientData);
                             }

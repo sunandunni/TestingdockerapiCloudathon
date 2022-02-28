@@ -106,14 +106,25 @@ namespace Testingdockerapi
 
             app.UseAuthorization();
 
+            //app.UseHttpMetrics(options =>
+            //{
+            //    // Assume there exists a custom route parameter with this name.
+            //    //options.AddRouteParameter("plan");
+            //});
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
                 endpoints.MapMetrics("./metrics");
             });
 
+            //app.UseHttpMetrics(options =>
+            //{
+            //   // Assume there exists a custom route parameter with this name.
+            //   options.AddRouteParameter("Plan");
+            //});
             app.UseMetricServer();
-           
+
 
             app.UseSwagger();
             app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v2/swagger.json", "PlanService"));
