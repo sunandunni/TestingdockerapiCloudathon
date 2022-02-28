@@ -8,11 +8,26 @@ using Newtonsoft.Json;
 using TestingDockerApi;
 using StackExchange.Redis;
 using Azure.Storage.Blobs;
+using Microsoft.Extensions.Logging;
 
 namespace Testingdockerapi.Repository
 {
     public class PlanRepository
     {
+
+        public static ILoggerFactory LoggerFactory1 { get; } = new LoggerFactory();
+        ILogger log = null;
+
+        public static ILogger CreateLogger<PlanRepository>()
+        {
+            var logger = LoggerFactory1.CreateLogger<PlanRepository>();
+            return logger;
+        }
+
+        public PlanRepository()
+        {
+            log = CreateLogger<PlanRepository>();
+        }
 
         // ALL Ids should be in string
         public async Task<List<Client>> GetClient(string name, IDistributedCache _cache, ConnectionMultiplexer connection, bool getAllClients = false)
@@ -24,12 +39,14 @@ namespace Testingdockerapi.Repository
             //3. From that list return only clients, wfor which name contains the passed name.
             List<Client> clientList = new List<Client>();
             var endPoint = connection.GetEndPoints().First();
+            log.LogInformation("Fetching All Client Keys from Redis Cache");
             RedisKey[] keys = connection.GetServer(endPoint).Keys(pattern: "*").ToArray();
 
             foreach (var key in keys)
             {
-                if (!key.ToString().Contains("-CF") && key.ToString().Contains("CL"))
+               if (!key.ToString().Contains("-CF") && key.ToString().Contains("CL"))
                 {
+                    log.LogInformation("Fetched all client keys");
                     if (key.ToString().StartsWith("CL"))
                     {
                         var client = _cache.GetStringAsync(key).Result;
@@ -53,6 +70,11 @@ namespace Testingdockerapi.Repository
                         db.KeyDelete(key);
                     }
                 }
+            }
+
+            if(clientList.Count() == 0)
+            {
+                log.LogWarning("No Client Found!!");
             }
 
             return clientList;
@@ -129,8 +151,9 @@ namespace Testingdockerapi.Repository
             //return null;
         }
         public async Task<Client> GetSingleClient(string clientId, IDistributedCache _cache)
-        {
+        {           
             string clientDetails = string.Empty;
+            log.LogInformation("Fetching client info for {0} from Redis",clientId);
             clientDetails = await _cache.GetStringAsync(clientId.ToString());
             if (!string.IsNullOrEmpty(clientDetails))
             {
@@ -143,6 +166,7 @@ namespace Testingdockerapi.Repository
             }
             else
             {
+                log.LogWarning("Client info not found for {0} from Redis", clientId);
                 return null;
             }
         }
@@ -194,6 +218,7 @@ namespace Testingdockerapi.Repository
 
         public async Task<bool> UpdateClient(string clientId, IDistributedCache _cache, double goalAmount, int retirementAge)
         {
+            log.LogInformation("Updating client goal info for {0} to Redis", clientId);
             var key = clientId;
             //List<string> myTodos = new List<string>();
             //bool IsCached = false;
@@ -228,6 +253,7 @@ namespace Testingdockerapi.Repository
 
         public async Task<bool> UpdateCashflow(List<Cashflow> cashflows, IDistributedCache _cache)
         {
+            log.LogInformation("Updating client cashflow info to Redis");
             foreach (var cashflow in cashflows)
             {
                 var updatedCashdlow = JsonConvert.SerializeObject(cashflow);
@@ -259,6 +285,7 @@ namespace Testingdockerapi.Repository
 
         public List<Cashflow> GetCashflows(string clientId, IDistributedCache _cache, ConnectionMultiplexer connection)
         {
+            log.LogInformation("Fetching client cashflow info for {0} from Redis", clientId);
             //TO DO   -- get list of keys starting with CL..get values from that key and return clients containing the name
             //1. GetHashCode all keys
             //2. Get all values for that key
@@ -316,6 +343,7 @@ namespace Testingdockerapi.Repository
         }
         public List<Account> GetAccounts(string clientId, BlobContainerClient blobContainerClient)
         {
+            log.LogInformation("Fetching client account info for {0} from Blob Storage", clientId);
             var accounts = AzureBlobStorage.GetAccountBlob(clientId, blobContainerClient);
             //Logic to change the string to accounts for the client id
 

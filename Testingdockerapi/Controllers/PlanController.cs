@@ -101,6 +101,17 @@ namespace Testingdockerapi.Controllers
         [Route("UpdateClient/{clientId}")]
         public bool UpdateClient(string clientId, double goalAmount, int retirementAge)
         {
+            var operationName = "UpdateClient";
+            var builder = _tracer.BuildSpan(operationName);
+
+            using (var scope = builder.StartActive(true))
+            {
+                var span = scope.Span;
+
+                var log = $"Updating client info for " + clientId;
+                span.Log(log);
+            }
+
             _logger.LogInformation("Update client details for {0}", clientId);
             // Done and Tested OK
             return manager.UpdateClient(clientId,_cache,goalAmount,retirementAge);
@@ -110,6 +121,16 @@ namespace Testingdockerapi.Controllers
         [Route("UpdateCashflows")]
         public bool UpdateCashflow(List<Cashflow> cashflow)
         {
+            var operationName = "UpdateCashflow";
+            var builder = _tracer.BuildSpan(operationName);
+
+            using (var scope = builder.StartActive(true))
+            {
+                var span = scope.Span;
+
+                var log = $"Updating cashflow";
+                span.Log(log);
+            }
             _logger.LogInformation("Update Cashflows");
             // DOne and Tested OK.
             return manager.UpdateCashflow(cashflow, _cache);
@@ -120,6 +141,16 @@ namespace Testingdockerapi.Controllers
         [Route("SetClients")]
         public bool SetClients(List<Client> clientList)
         {
+            var operationName = "SetClients";
+            var builder = _tracer.BuildSpan(operationName);
+
+            using (var scope = builder.StartActive(true))
+            {
+                var span = scope.Span;
+
+                var log = $"Adding Clients";
+                span.Log(log);
+            }
             _logger.LogInformation("Adding Clients");
             // DOne and Tested OK.
             return manager.AddClients(clientList, _cache);
@@ -130,6 +161,16 @@ namespace Testingdockerapi.Controllers
         [Route("GetCashflows/{clientId}")]
         public List<Cashflow> getCashflows(string clientId)
         {
+            var operationName = "GetCashflows";
+            var builder = _tracer.BuildSpan(operationName);
+
+            using (var scope = builder.StartActive(true))
+            {
+                var span = scope.Span;
+
+                var log = $"Getting Cashflow Info for "+  clientId;
+                span.Log(log);
+            }
             _logger.LogInformation("Getting Cashflows for - {0}", clientId);
             // Done and Tested OK.
             return manager.GetCashflows(clientId,_cache,connection);
@@ -140,7 +181,16 @@ namespace Testingdockerapi.Controllers
         [Route("GetAllCashflows")]
         public List<Cashflow> getAllCashflows()
         {
-           
+            var operationName = "GetAllCashflows";
+            var builder = _tracer.BuildSpan(operationName);
+
+            using (var scope = builder.StartActive(true))
+            {
+                var span = scope.Span;
+
+                var log = $"Getting All Cashflows";
+                span.Log(log);
+            }
             // Done and Tested OK.
             return manager.GetAllCashflows( _cache, connection);
 
