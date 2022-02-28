@@ -13,5 +13,7 @@ namespace Testingdockerapi.Entities
         public string ClientId { get; set; }
         public string type { get; set; }
         public double amount { get; set; }
+
+        public string name { get; set; }
     }
 }

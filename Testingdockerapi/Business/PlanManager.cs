@@ -92,6 +92,12 @@ namespace Testingdockerapi.Business
 
         }
 
+        public List<Cashflow> GetAllCashflows(IDistributedCache _cache, ConnectionMultiplexer connection, bool getCashflows = false)
+        {
+            return repository.GetAllCashflows(_cache, connection);
+
+        }
+
         public bool UpdateCashflow(List<Cashflow> cashflows, IDistributedCache _cache)
         {
             return repository.UpdateCashflow(cashflows, _cache).Result;

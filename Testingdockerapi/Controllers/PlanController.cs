@@ -137,6 +137,16 @@ namespace Testingdockerapi.Controllers
         }
 
         [HttpGet]
+        [Route("GetAllCashflows")]
+        public List<Cashflow> getAllCashflows()
+        {
+           
+            // Done and Tested OK.
+            return manager.GetAllCashflows( _cache, connection);
+
+        }
+
+        [HttpGet]
         [Route("GetAccounts/{clientId}")]
         public List<Account> getAccounts(string clientId)
         {

@@ -285,6 +285,35 @@ namespace Testingdockerapi.Repository
             }
             return cashflowList;
         }
+
+        public List<Cashflow> GetAllCashflows(IDistributedCache _cache, ConnectionMultiplexer connection, bool getAllCashflows = false)
+        {
+            //TO DO   -- get list of keys starting with CL..get values from that key and return clients containing the name
+            //1. GetHashCode all keys
+            //2. Get all values for that key
+            //3. From that list return only clients, wfor which name contains the passed name.
+            List<Cashflow> cashflowList = new List<Cashflow>();
+            var endPoint = connection.GetEndPoints().First();
+            RedisKey[] keys = connection.GetServer(endPoint).Keys(pattern: "*-CF*").ToArray();
+
+            foreach (var key in keys)
+            {
+                var cashflow = _cache.GetStringAsync(key).Result;
+                if (cashflow != null)
+                {
+                    var cashflowData = JsonConvert.DeserializeObject<Cashflow>(cashflow);
+
+                    cashflowList.Add(cashflowData);
+
+                }
+            }
+
+            if (cashflowList.Count == 0)
+            {
+                cashflowList = null;
+            }
+            return cashflowList;
+        }
         public List<Account> GetAccounts(string clientId, BlobContainerClient blobContainerClient)
         {
             var accounts = AzureBlobStorage.GetAccountBlob(clientId, blobContainerClient);
